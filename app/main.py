@@ -1,17 +1,31 @@
 """
 AI Vision Assistant - Main FastAPI Application
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from app.routes import classification, detection, segmentation, evaluation, batch
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    logger.info("Starting AI Vision Assistant API...")
+    logger.info("Loading pretrained models...")
+    yield
+    # Shutdown
+    logger.info("Shutting down AI Vision Assistant API...")
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="AI Vision Assistant",
     description="AI-powered computer vision assistant for image understanding, detection, and analysis",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -29,19 +43,6 @@ app.include_router(detection.router, prefix="/api/v1/detect", tags=["Detection"]
 app.include_router(segmentation.router, prefix="/api/v1/segment", tags=["Segmentation"])
 app.include_router(evaluation.router, prefix="/api/v1/evaluate", tags=["Evaluation"])
 app.include_router(batch.router, prefix="/api/v1/batch", tags=["Batch Processing"])
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on startup"""
-    logger.info("Starting AI Vision Assistant API...")
-    logger.info("Loading pretrained models...")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    logger.info("Shutting down AI Vision Assistant API...")
 
 
 @app.get("/")
