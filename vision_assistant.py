@@ -94,9 +94,18 @@ class VisionAssistant:
             
         Returns:
             PIL Image object
+            
+        Raises:
+            FileNotFoundError: If image file path doesn't exist
+            ValueError: If image cannot be loaded or converted
         """
         if isinstance(image, str):
-            return Image.open(image).convert("RGB")
+            try:
+                return Image.open(image).convert("RGB")
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Image file not found: {image}")
+            except Exception as e:
+                raise ValueError(f"Failed to load image from {image}: {str(e)}")
         return image
     
     def classify(
@@ -132,7 +141,10 @@ class VisionAssistant:
         
         results = []
         for prob, idx in zip(top_probs, top_indices):
-            label = self._classification_model.config.id2label[idx.item()]
+            label_id = idx.item()
+            label = self._classification_model.config.id2label.get(
+                label_id, f"UNKNOWN_LABEL_{label_id}"
+            )
             results.append({
                 "label": label,
                 "score": prob.item()
@@ -177,9 +189,13 @@ class VisionAssistant:
         for score, label, box in zip(
             results["scores"], results["labels"], results["boxes"]
         ):
+            label_id = label.item()
+            label_text = self._detection_model.config.id2label.get(
+                label_id, f"UNKNOWN_LABEL_{label_id}"
+            )
             box_coords = [round(i, 2) for i in box.tolist()]
             detections.append({
-                "label": self._detection_model.config.id2label[label.item()],
+                "label": label_text,
                 "score": score.item(),
                 "box": box_coords  # [x_min, y_min, x_max, y_max]
             })
@@ -220,9 +236,13 @@ class VisionAssistant:
         
         segments = []
         for segment_info in results["segments_info"]:
+            label_id = segment_info["label_id"]
+            label = self._segmentation_model.config.id2label.get(
+                label_id, f"UNKNOWN_LABEL_{label_id}"
+            )
             segments.append({
                 "id": segment_info["id"],
-                "label": self._segmentation_model.config.id2label[segment_info["label_id"]],
+                "label": label,
                 "score": segment_info["score"],
                 "area": segment_info.get("area", 0)
             })

@@ -148,9 +148,9 @@ The assistant uses:
 ## Requirements 📋
 
 - Python 3.8+
-- PyTorch 2.0+
-- Transformers 4.35+
-- Pillow 10.0+
+- PyTorch 2.6+
+- Transformers 4.48+
+- Pillow 10.2+
 - NumPy 1.24+
 
 See `requirements.txt` for complete dependencies.
