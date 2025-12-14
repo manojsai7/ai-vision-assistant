@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # API Service
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - model-cache:/tmp/torch
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # Redis for task queue
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # Celery worker (optional, for async processing)
+  worker:
+    build: .
+    command: celery -A app.tasks worker --loglevel=info
+    volumes:
+      - ./app:/app/app
+      - model-cache:/tmp/torch
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  model-cache:
