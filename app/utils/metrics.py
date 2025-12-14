@@ -117,9 +117,11 @@ def calculate_map(
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / len(class_gt) if len(class_gt) > 0 else 0
         
-        # Simplified AP calculation (Note: This is a basic approximation.
-        # For production use, implement proper precision-recall curve integration
-        # or use sklearn.metrics.average_precision_score)
+        # IMPORTANT: This is a SIMPLIFIED AP calculation for demonstration purposes.
+        # It computes precision * recall, which is NOT the correct Average Precision metric.
+        # For production use, you MUST implement proper precision-recall curve integration
+        # (e.g., using sklearn.metrics.average_precision_score or computing the area under
+        # the PR curve using interpolation as defined in COCO/VOC metrics).
         ap = precision * recall
         aps.append(ap)
     

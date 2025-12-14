@@ -123,13 +123,13 @@ class SegmentationService:
             raise
 
 
-# Global instance
-_segmentation_service = None
+# Global instances cache
+_segmentation_services = {}
 
 
 def get_segmentation_service(model_name: str = "deeplabv3_resnet50") -> SegmentationService:
     """Get or create segmentation service instance"""
-    global _segmentation_service
-    if _segmentation_service is None:
-        _segmentation_service = SegmentationService(model_name)
-    return _segmentation_service
+    global _segmentation_services
+    if model_name not in _segmentation_services:
+        _segmentation_services[model_name] = SegmentationService(model_name)
+    return _segmentation_services[model_name]

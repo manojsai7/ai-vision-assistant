@@ -29,10 +29,12 @@ app = FastAPI(
 )
 
 # Configure CORS
+# WARNING: For production, restrict origins to known frontend domains
+# and consider disabling credentials for public APIs
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Production: Replace with specific origins
+    allow_credentials=True,  # Production: Set to False for public APIs
     allow_methods=["*"],
     allow_headers=["*"],
 )

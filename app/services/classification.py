@@ -126,13 +126,13 @@ class ClassificationService:
         return model
 
 
-# Global instance
-_classification_service = None
+# Global instances cache
+_classification_services = {}
 
 
 def get_classification_service(model_name: str = "resnet50") -> ClassificationService:
     """Get or create classification service instance"""
-    global _classification_service
-    if _classification_service is None:
-        _classification_service = ClassificationService(model_name)
-    return _classification_service
+    global _classification_services
+    if model_name not in _classification_services:
+        _classification_services[model_name] = ClassificationService(model_name)
+    return _classification_services[model_name]

@@ -134,13 +134,13 @@ class DetectionService:
             raise
 
 
-# Global instance
-_detection_service = None
+# Global instances cache
+_detection_services = {}
 
 
 def get_detection_service(model_name: str = "fasterrcnn_resnet50") -> DetectionService:
     """Get or create detection service instance"""
-    global _detection_service
-    if _detection_service is None:
-        _detection_service = DetectionService(model_name)
-    return _detection_service
+    global _detection_services
+    if model_name not in _detection_services:
+        _detection_services[model_name] = DetectionService(model_name)
+    return _detection_services[model_name]
